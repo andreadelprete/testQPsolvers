@@ -21,17 +21,24 @@ project(${PROJECT_NAME})
 #SETUP_PROJECT()
 SEARCH_FOR_EIGEN()
 
-file(GLOB ${PROJECT_NAME}_H    "include/testQPsolvers/*.h")
+file(GLOB ${PROJECT_NAME}_H    "include/testQPsolvers/*.hpp")
 file(GLOB ${PROJECT_NAME}_SRC  "src/*.cpp")
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include
-                    /home/adelpret/devel/yarp_gazebo/src/qpOASES-3.0beta/include)
+                    /home/adelpret/devel/yarp_gazebo/src/qpOASES-3.0beta/include
+                    /home/adelpret/devel/yarp_gazebo/src/OOQP-0.99.24/include )
 
-link_directories(/home/adelpret/devel/yarp_gazebo/src/qpOASES-3.0beta/bin)
+link_directories(/home/adelpret/devel/yarp_gazebo/src/qpOASES-3.0beta/bin
+                 /home/adelpret/devel/yarp_gazebo/src/OOQP-0.99.24/lib
+                 /home/adelpret/devel/yarp_gazebo/src/OOQP-0.99.24/extras/MA27)
 
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_H} ${${PROJECT_NAME}_SRC})
 
-target_link_libraries(${PROJECT_NAME} libqpOASES.so)
+target_link_libraries(${PROJECT_NAME} libqpOASES.so
+                                      ooqpgendense ooqpdense 
+				      ooqpgensparse ooqpsparse 
+                                      ooqpgondzio ooqpbase 
+                                      blas MA27 gfortran )
 
 PKG_CONFIG_APPEND_CFLAGS(${_Eigen_CFLAGS})
 #SETUP_PROJECT_FINALIZE()

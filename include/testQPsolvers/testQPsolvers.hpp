@@ -41,7 +41,7 @@ bool testQpOases(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
                  double &avgTime, double &avgWSR, double &avgActiveConstr, VectorXd &optCosts);
 
 bool testOOQP(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
-               const vector<VectorXd> &gradientPerturbations, bool useWarmStart,
+               const vector<VectorXd> &gradientPerturbations,
                double &avgTime, double &avgWSR, VectorXd &optCosts);
 
 bool testQuadProgPP(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
