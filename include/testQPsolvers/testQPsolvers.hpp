@@ -40,13 +40,29 @@ bool testQpOases(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
                  const vector<VectorXd> &gradientPerturbations, bool useWarmStart,
                  double &avgTime, double &avgWSR, double &avgActiveConstr, VectorXd &optCosts);
 
-bool testOOQP(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
+bool testOOQPDense(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
+               const vector<VectorXd> &gradientPerturbations,
+               double &avgTime, double &avgWSR, VectorXd &optCosts);
+
+bool testOOQPSparse(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
                const vector<VectorXd> &gradientPerturbations,
                double &avgTime, double &avgWSR, VectorXd &optCosts);
 
 bool testQuadProgPP(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
                     const vector<VectorXd> &gradientPerturbations,
                     double &avgTime, double &avgWSR, VectorXd &optCosts);
+
+bool testMosek(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
+                 const vector<VectorXd> &gradientPerturbations, double &avgTime, VectorXd &optCosts);
+
+bool testEigenEq(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
+                 const vector<VectorXd> &gradientPerturbations, int avgActiveInequalities,
+                 double &avgTime, VectorXd &optCosts);
+
+bool testEigenEqElim(const QPdata &qp, const vector<MatrixXd> &hessianPerturbations,
+                const vector<VectorXd> &gradientPerturbations, int avgActiveInequalities,
+                double &avgTime,VectorXd &optCosts);
+
 
 
 #endif

@@ -39,6 +39,7 @@ bool testQuadProgPP(const QPdata &qp, const vector<MatrixXd> &hessianPerturbatio
     //ci0.segment(m,m_box) = qp.ub.head(m_box);
     //ci0.tail(m_box) = -1.0*qp.lb.head(m_box);
 
+    int qpFailed = 0;
     clock_t t = clock();
     for(int i=0; i<nTest; i++)
 	{
@@ -56,9 +57,12 @@ bool testQuadProgPP(const QPdata &qp, const vector<MatrixXd> &hessianPerturbatio
         optCosts[i] = solve_quadprog(HTemp2, gTemp, CE, ce0, CI, ci0, sol);
 
         if(optCosts[i]==std::numeric_limits<double>::infinity())
-            cout<<"QP "<<i<<" failed.\n";
+            qpFailed++;
 	}
 	t = clock() - t;
+
+	if(qpFailed>0)
+        cout<<"*** ERROR *** "<<qpFailed<<" QPs failed!\n";
 
     avgTime = ((float)t)/(CLOCKS_PER_SEC*nTest);
     return true;

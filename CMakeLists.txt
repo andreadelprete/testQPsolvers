@@ -26,11 +26,13 @@ file(GLOB ${PROJECT_NAME}_SRC  "src/*.cpp")
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include
                     /home/adelpret/devel/yarp_gazebo/src/qpOASES-3.0beta/include
-                    /home/adelpret/devel/yarp_gazebo/src/OOQP-0.99.24/include )
+                    /home/adelpret/devel/yarp_gazebo/src/OOQP-0.99.24/include 
+                    /home/adelpret/devel/yarp_gazebo/src/mosek/7/tools/platform/linux64x86/h)
 
 link_directories(/home/adelpret/devel/yarp_gazebo/src/qpOASES-3.0beta/bin
                  /home/adelpret/devel/yarp_gazebo/src/OOQP-0.99.24/lib
-                 /home/adelpret/devel/yarp_gazebo/src/OOQP-0.99.24/extras/MA27)
+                 /home/adelpret/devel/yarp_gazebo/src/OOQP-0.99.24/extras/MA27
+                 /home/adelpret/devel/yarp_gazebo/src/mosek/7/tools/platform/linux64x86/bin)
 
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_H} ${${PROJECT_NAME}_SRC})
 
@@ -38,7 +40,8 @@ target_link_libraries(${PROJECT_NAME} libqpOASES.so
                                       ooqpgendense ooqpdense 
 				      ooqpgensparse ooqpsparse 
                                       ooqpgondzio ooqpbase 
-                                      blas MA27 gfortran )
+                                      blas MA27 gfortran 
+                                      libmosek64.so )
 
 PKG_CONFIG_APPEND_CFLAGS(${_Eigen_CFLAGS})
 #SETUP_PROJECT_FINALIZE()
