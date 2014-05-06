@@ -13,16 +13,16 @@
 using namespace Eigen;
 using namespace std;
 
-#define NO_TEST_MOSEK
-//#define NO_TEST_OOQP
+//#define NO_TEST_MOSEK
+#define NO_TEST_OOQP
 
 int main( )
 {
 	/* Setup data of first QP. */
 	const int nTest = 1000;  // number of tests to execute
-    const int n     = 2;    // number of variables x
-    const int m     = 2;    // number of linear constraints A*x <= u
-    const int mActAvg = 1;  // average number of active constraints
+    const int n     = 30;    // number of variables x
+    const int m     = 44;    // number of linear constraints A*x <= u
+    const int mActAvg = 11;  // average number of active constraints
     const int m_box = 0;     // number of box constraints    l <= x <= u
     // variance of the normal distribution used for generating initial bounds
     const double NORMAL_DISTR_VAR = 10.0;
@@ -36,6 +36,12 @@ int main( )
     const bool USE_WARM_START = true;
     bool res;
 
+    cout<<"\nGoing to run "<<nTest<<" QP, with "<<n<<" variables and "<<m<<" bilateral inequality constraints.\n";
+    cout<<"At each iteration the gradient is perturbed by a Gaussian random variable with variance ";
+    cout<<GRADIENT_PERTURBATION_VARIANCE;
+    cout<<", while the Hessian is perturbed by a Gaussian random variable with variance ";
+    cout<<HESSIAN_PERTURBATION_VARIANCE<<endl;
+
     QPdata initialQP;
     initialQP.H = MatrixXdr::Random(n,n);
     initialQP.H = initialQP.H * initialQP.H.transpose();
@@ -45,9 +51,6 @@ int main( )
     initialQP.ub = VectorXd::Random(n)*NORMAL_DISTR_VAR;
     initialQP.ubA = VectorXd::Random(m)*NORMAL_DISTR_VAR;
     initialQP.m_box = m_box;
-
-    cout<<"H\n"<<initialQP.H<<endl;
-    cout<<"A\n"<<initialQP.A<<endl;
 
     orderLowerUpperBounds(initialQP.lb, initialQP.ub);
     for(int i=m_box; i<n; i++)
@@ -82,7 +85,7 @@ int main( )
 
 
     // TEST EIGEN EQUALITY QP (full KKT system resolution)
-    cout<<"\n*** TEST EIGEN EQUALITY FULL KKT ("<<nTest<<" QP, "<<n<<" var, "<<mActAvg<<" equality constraints)\n";
+    cout<<"\n* TEST EIGEN EQUALITY FULL KKT: ";
     double avgTime_eigEq;
     VectorXd optCosts_eigEq(nTest);
     res = testEigenEq(initialQP, hessianPerturbations, gradientPerturbations, mActAvg,
@@ -92,7 +95,7 @@ int main( )
     cout<<"Average time for QP: "<<avgTime_eigEq*1000<<" ms\n";
 
     // TEST EIGEN EQUALITY QP (solving KKT system by block elimination)
-    cout<<"\n*** TEST EIGEN EQUALITY ELIMINATION ("<<nTest<<" QP, "<<n<<" var, "<<mActAvg<<" equality constraints)\n";
+    cout<<"\n* TEST EIGEN EQUALITY ELIMINATION: ";
     double avgTime_eigEqElim;
     VectorXd optCosts_eigEqElim(nTest);
     res = testEigenEqElim(initialQP, hessianPerturbations, gradientPerturbations, mActAvg,
@@ -104,7 +107,7 @@ int main( )
 
 #ifndef NO_TEST_MOSEK
     // TEST MOSEK
-    cout<<"\n*** TEST MOSEK ("<<nTest<<" QP, "<<n<<" var, "<<m<<" unilateral inequality constraints)\n";
+    cout<<"\n* TEST MOSEK: ";
     double avgTime_mosek;
     VectorXd optCosts_mosek(nTest);
     res = testMosek(initialQP, hessianPerturbations, gradientPerturbations,
@@ -116,7 +119,7 @@ int main( )
 
 #ifndef NO_TEST_OOQP
     // TEST OOQP
-    cout<<"\n*** TEST OOQP Dense ("<<nTest<<" QP, "<<n<<" var, "<<m<<" unilateral inequality constraints)\n";
+    cout<<"\n* TEST OOQP Dense: ";
     double avgTime_OOQPDense, avgWSR_OOQPDense;
     VectorXd optCosts_OOQPDense(nTest);
     res = testOOQPDense(initialQP, hessianPerturbations, gradientPerturbations,
@@ -125,7 +128,7 @@ int main( )
         cout<<"Test OOQP dense failed for some reason\n";
     cout<<"Average time for QP: "<<avgTime_OOQPDense*1000<<" ms\n";
 
-    cout<<"\n*** TEST OOQP Sparse ("<<nTest<<" QP, "<<n<<" var, "<<m<<" unilateral inequality constraints)\n";
+    cout<<"\n* TEST OOQP Sparse: ";
     double avgTime_OOQPSparse, avgWSR_OOQPSparse;
     VectorXd optCosts_OOQPSparse(nTest);
 //    res = testOOQPSparse(initialQP, hessianPerturbations, gradientPerturbations,
@@ -136,19 +139,19 @@ int main( )
 #endif
 
     // TEST QUAD PROG++
-    cout<<"\n*** TEST QUADPROG++ ("<<nTest<<" QP, "<<n<<" var, "<<m<<" unilateral inequality constraints)\n";
+    cout<<"\n* TEST EigQuadProg: ";
     double avgTime_quadProgPP, avgWSR_quadProgPP;
     VectorXd optCosts_quadProgPP(nTest);
     res = testQuadProgPP(initialQP, hessianPerturbations, gradientPerturbations,
                               avgTime_quadProgPP, avgWSR_quadProgPP, optCosts_quadProgPP);
     if(res==false)
-        cout<<"Test QuadProg++ failed for some reason\n";
+        cout<<"Test EigQuadProg failed for some reason\n";
     cout<<"Average time for QP: "<<avgTime_quadProgPP*1000<<" ms\n";
 
 
 
     // TEST QP OASES
-    cout<<"\n*** TEST QP OASES ("<<nTest<<" QP, "<<n<<" var, "<<m<<" bilateral inequality constraints)\n";
+    cout<<"\n* TEST QP OASES: ";
     double avgTime_qpoases, avgWSR_qpoases, avgActiveConstr_qpoases;
     VectorXd optCosts_qpoases(nTest);
     res = testQpOases(initialQP, hessianPerturbations, gradientPerturbations, USE_WARM_START,
@@ -156,6 +159,7 @@ int main( )
     if(res==false)
         cout<<"Test QP oases failed for some reason\n";
     cout<<"Average time for QP: "<<avgTime_qpoases*1000<<" ms\n";
+    cout<<endl;
 	cout<<"Average number of active set reconstructions: "<<avgWSR_qpoases<<endl;
 	cout<<"Average number of active constraints: "<<avgActiveConstr_qpoases<<endl;
 
